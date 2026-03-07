@@ -60,13 +60,38 @@ func (e *ElectricTruck) UnloadCargo() error {
 func processTruck(ctx context.Context, truck Truck) error {
 	fmt.Printf("Processing Truck %+v \n", truck)
 
+	// ctx, cancel := context.WithTimeout(ctx, time.Second*2)
+	// defer cancel()
+
+	// delay := time.Second * 5
+	// select {
+	// case <-ctx.Done():
+	// 	return ctx.Err()
+	// case <-time.After(delay):
+	// 	break
+	// }
+
+	// err := truck.LoadCargo()
+	// if err != nil {
+	// 	return fmt.Errorf("Error loading cargo %w", err)
+	// }
+
+	// err = truck.UnloadCargo()
+	// if err != nil {
+	// 	return fmt.Errorf("Error un-loading cargo %w", err)
+	// }
+
+	// fmt.Printf("Finish processing Truck %+v \n", truck)
+	// return nil
+
 	return ErrTruckNotFound
 }
 
 func processFleet(ctx context.Context, trucks []Truck) error {
 	var wg sync.WaitGroup
 
-	errorsChannel := make(chan error, len(trucks))
+	errorsChannel := make(chan error, len(trucks)) // len(trucks) numbers of channels will be created to prevent deadlock
+	// defer close(errorsChannel)                     // We need to close a channel that we open
 
 	for _, t := range trucks {
 		wg.Add(1)
@@ -76,7 +101,7 @@ func processFleet(ctx context.Context, trucks []Truck) error {
 
 			if err != nil {
 				log.Println(err)
-				errorsChannel <- err
+				errorsChannel <- err // Sends the error to the channel
 			}
 
 			wg.Done()
@@ -86,6 +111,15 @@ func processFleet(ctx context.Context, trucks []Truck) error {
 	wg.Wait()
 	close(errorsChannel)
 
+	// Listen to single error
+	// select {
+	// case err := <-errorsChannel: // Pipeing any errors that are in errors channel to the err variable.
+	// 	return err
+	// default:
+	// 	return nil
+	// }
+
+	// Listen to a slice of errors
 	var errs []error
 
 	for err := range errorsChannel {
@@ -101,6 +135,9 @@ func processFleet(ctx context.Context, trucks []Truck) error {
 }
 
 func main() {
+	// Go routines lets you run concurrent tasks
+	// Channels acts as a pipeline for to send and recieve data between go-routines
+
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, UserIDKey, 42)
 
