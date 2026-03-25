@@ -7,17 +7,17 @@ import (
 
 type Storage struct {
 	Posts interface {
-		Create(context.Context) error
+		Create(context.Context, *Post) error
 	}
 	Users interface {
-		Create(context.Context) error
+		Create(context.Context, *User) error
 	}
 }
 
 // Constructor function for Storage
 func NewPostgresStorage(db *sql.DB) Storage {
 	return Storage{
-		Posts: &PostsStore{db},
+		Posts: &PostStore{db},
 		Users: &UserStore{db},
 	}
 }
