@@ -21,6 +21,12 @@
 - This will include the storage layer that we will use for postgres
 - Data validation / Sending emails / package implementation / Rate limiter
 
+###### `code/internal/env`
+- This will have the functions to access the keys from .envrc file
+
+###### `code/internal/store`
+- This is where the repositories / data will stay (Database methods)
+
 ###### `code/docs`
 - Auto generated docs from swagger will live here.
 
