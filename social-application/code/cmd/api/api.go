@@ -17,6 +17,14 @@ type application struct {
 
 type config struct {
 	addr string
+	db   dbConfig
+}
+
+type dbConfig struct {
+	addr         string
+	maxOpenConns int
+	maxIdleConns int
+	maxIdleTime  string
 }
 
 // As chi internally implements the http.Handler interface, we can use it directly as the Handler for our http.Server.
