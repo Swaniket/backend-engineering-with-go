@@ -53,3 +53,17 @@
 ## Spin up the DB
 
 `docker compose up --build`
+
+## DB migration
+
+### Tool
+
+We are using -> [`golang-migrate`](https://github.com/golang-migrate/migrate?tab=readme-ov-file#cli-usage) 
+
+### Command
+
+`migrate create -seq -ext sql -dir ./cmd/migrate/migrations create_users`
+
+- `-seq` -> Sequential -> means the name of the files will be: 001, 002, 003...etc
+- `-ext sql` -> specifies that the migration should be in SQL format.
+- `-dir ./cmd/migrate/migrations` -> This option tells Golang-migrate where to store the new migration file. In this case, it will be created in the `./cmd/migrate/migrations` directory.
