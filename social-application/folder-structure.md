@@ -67,3 +67,22 @@ We are using -> [`golang-migrate`](https://github.com/golang-migrate/migrate?tab
 - `-seq` -> Sequential -> means the name of the files will be: 001, 002, 003...etc
 - `-ext sql` -> specifies that the migration should be in SQL format.
 - `-dir ./cmd/migrate/migrations` -> This option tells Golang-migrate where to store the new migration file. In this case, it will be created in the `./cmd/migrate/migrations` directory.
+
+### Usage
+
+- `Up migration` will create table(s) as specified in the schema in the DB
+
+`migrate -path=./cmd/migrate/migrations -database="postgres://admin:adminpassword@localhost/social?sslmode=disable" up`
+
+- `Down migration` will delete the table or downgrade to a lower version with a different schema.
+
+`migrate -path=./cmd/migrate/migrations -database="postgres://admin:adminpassword@localhost/social?sslmode=disable" down`
+
+## Makefile
+
+### What is make?
+
+- It comes built in with `GNU make` in linux based systems
+- It allows us to store commands (as they can be complicated sometimes) and run them using simple keywords.
+- The file should be called -> `Makefile`
+
