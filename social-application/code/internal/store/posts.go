@@ -11,10 +11,10 @@ type Post struct {
 	ID        int64    `json:"id"`
 	Content   string   `json:"content"`
 	Title     string   `json:"title"`
-	userID    int64    `json:"user_id"`
+	UserID    int64    `json:"user_id"`
 	Tags      []string `json:"tags"`
-	createdAt string   `json:"created_at"`
-	updatedAt string   `json:"updated_at"`
+	CreatedAt string   `json:"created_at"`
+	UpdatedAt string   `json:"updated_at"`
 }
 
 type PostStore struct {
@@ -33,12 +33,12 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 		query,
 		post.Content,
 		post.Title,
-		post.userID,
+		post.UserID,
 		pq.Array(post.Tags),
 	).Scan( // Scan will get the returning values and assign them to the post struct
 		&post.ID,
-		&post.createdAt,
-		&post.updatedAt,
+		&post.CreatedAt,
+		&post.UpdatedAt,
 	)
 
 	if err != nil {

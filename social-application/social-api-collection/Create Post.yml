@@ -1,0 +1,23 @@
+info:
+  name: Create Post
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: http://localhost:8080/v1/posts
+  body:
+    type: json
+    data: |-
+      {
+        "title": "Test Title",
+        "content": "Test Description",
+        "tags": ["test-tag"]
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
