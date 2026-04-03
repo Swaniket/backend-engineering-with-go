@@ -10,8 +10,8 @@ http:
     type: json
     data: |-
       {
-        "title": "Test Title",
-        "content": "Test Description",
+        "title": "Test Title2",
+        "content": "Test Description2",
         "tags": ["test-tag"]
       }
   auth: inherit
