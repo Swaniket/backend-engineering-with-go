@@ -19,12 +19,16 @@ type Storage struct {
 	Users interface {
 		Create(context.Context, *User) error
 	}
+	Comments interface {
+		GetCommentsByPostId(context.Context, int64) ([]Comment, error)
+	}
 }
 
 // Constructor function for Storage
 func NewPostgresStorage(db *sql.DB) Storage {
 	return Storage{
-		Posts: &PostStore{db},
-		Users: &UserStore{db},
+		Posts:    &PostStore{db},
+		Users:    &UserStore{db},
+		Comments: &CommentsStore{db},
 	}
 }
