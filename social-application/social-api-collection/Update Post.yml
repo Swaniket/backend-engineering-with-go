@@ -1,0 +1,22 @@
+info:
+  name: Update Post
+  type: http
+  seq: 4
+
+http:
+  method: PATCH
+  url: http://localhost:8080/v1/posts/3
+  body:
+    type: json
+    data: |-
+      {
+        "content": "Some Updated content",
+        "title": "Updated title 3"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
