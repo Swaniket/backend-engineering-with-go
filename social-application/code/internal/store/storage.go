@@ -14,6 +14,7 @@ var (
 )
 
 type Storage struct {
+	DB    *sql.DB
 	Posts interface {
 		Create(context.Context, *Post) error
 		GetById(context.Context, int64) (*Post, error)
@@ -24,6 +25,7 @@ type Storage struct {
 		Create(context.Context, *User) error
 	}
 	Comments interface {
+		Create(context.Context, *Comment) error
 		GetCommentsByPostId(context.Context, int64) ([]Comment, error)
 	}
 }
@@ -31,6 +33,7 @@ type Storage struct {
 // Constructor function for Storage
 func NewPostgresStorage(db *sql.DB) Storage {
 	return Storage{
+		DB:       db,
 		Posts:    &PostStore{db},
 		Users:    &UserStore{db},
 		Comments: &CommentsStore{db},
