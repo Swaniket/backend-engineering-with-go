@@ -45,6 +45,9 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 		RETURNING id, created_at, updated_at
 	`
 
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	err := s.db.QueryRowContext(
 		ctx,
 		query,
@@ -71,6 +74,9 @@ func (s *PostStore) GetById(ctx context.Context, postID int64) (*Post, error) {
 		FROM posts 
 		WHERE id = $1
 	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	var post Post
 	err := s.db.QueryRowContext(ctx, query, postID).Scan(
@@ -104,6 +110,9 @@ func (s *PostStore) UpdatePost(ctx context.Context, postID int64, postVersion in
 		RETURNING id, title, content, created_at, updated_at, version
 	`
 
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
+
 	var post UpdatePostResponse
 	err := s.db.QueryRowContext(ctx, query, updatePost.Title, updatePost.Content, postID, postVersion).Scan(
 		&post.ID,
@@ -131,6 +140,9 @@ func (s *PostStore) DeletePost(ctx context.Context, postID int64) error {
 		DELETE FROM posts
 		WHERE id=$1
 	`
+
+	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
+	defer cancel()
 
 	// We are using ExecContext because we don't want to return anything
 	res, err := s.db.ExecContext(ctx, query, postID)
