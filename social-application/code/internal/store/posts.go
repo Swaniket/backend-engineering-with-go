@@ -16,6 +16,7 @@ type Post struct {
 	Tags      []string  `json:"tags"`
 	CreatedAt string    `json:"created_at"`
 	UpdatedAt string    `json:"updated_at"`
+	Version   int64     `json:"version"`
 	Comments  []Comment `json:"comments"`
 }
 
@@ -30,6 +31,7 @@ type UpdatePostResponse struct {
 	Title     string `json:"title"`
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
+	Version   string `json:"version"`
 }
 
 type PostStore struct {
@@ -65,7 +67,7 @@ func (s *PostStore) Create(ctx context.Context, post *Post) error {
 
 func (s *PostStore) GetById(ctx context.Context, postID int64) (*Post, error) {
 	query := `
-		SELECT id, user_id, title, content, tags, created_at, updated_at 
+		SELECT id, user_id, title, content, tags, created_at, updated_at, version 
 		FROM posts 
 		WHERE id = $1
 	`
@@ -79,6 +81,7 @@ func (s *PostStore) GetById(ctx context.Context, postID int64) (*Post, error) {
 		pq.Array(&post.Tags),
 		&post.CreatedAt,
 		&post.UpdatedAt,
+		&post.Version,
 	)
 
 	if err != nil {
@@ -93,25 +96,31 @@ func (s *PostStore) GetById(ctx context.Context, postID int64) (*Post, error) {
 	return &post, nil
 }
 
-func (s *PostStore) UpdatePost(ctx context.Context, postID int64, updatePost *UpdatePostPayload) (*UpdatePostResponse, error) {
+func (s *PostStore) UpdatePost(ctx context.Context, postID int64, postVersion int64, updatePost *UpdatePostPayload) (*UpdatePostResponse, error) {
 	query := `
 		UPDATE posts
-		SET title = $1, content = $2
-		WHERE id=$3
-		RETURNING id, title, content, created_at, updated_at
+		SET title = $1, content = $2, version = version + 1
+		WHERE id=$3 AND version=$4
+		RETURNING id, title, content, created_at, updated_at, version
 	`
 
 	var post UpdatePostResponse
-	err := s.db.QueryRowContext(ctx, query, updatePost.Title, updatePost.Content, postID).Scan(
+	err := s.db.QueryRowContext(ctx, query, updatePost.Title, updatePost.Content, postID, postVersion).Scan(
 		&post.ID,
 		&post.Title,
 		&post.Content,
 		&post.CreatedAt,
 		&post.UpdatedAt,
+		&post.Version,
 	)
 
 	if err != nil {
-		return nil, err
+		switch {
+		case errors.Is(err, sql.ErrNoRows):
+			return nil, ErrNotFound
+		default:
+			return nil, err
+		}
 	}
 
 	return &post, nil

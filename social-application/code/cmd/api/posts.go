@@ -106,9 +106,14 @@ func (app *application) UpdatePostByIDHandler(w http.ResponseWriter, r *http.Req
 		}(),
 	}
 
-	updatedPost, err := app.store.Posts.UpdatePost(r.Context(), post.ID, updatePost)
+	updatedPost, err := app.store.Posts.UpdatePost(r.Context(), post.ID, post.Version, updatePost)
 	if err != nil {
-		app.InternalServerError(w, r, err)
+		switch {
+		case errors.Is(err, store.ErrNotFound):
+			app.ConflictError(w, r, err)
+		default:
+			app.InternalServerError(w, r, err)
+		}
 		return
 	}
 
