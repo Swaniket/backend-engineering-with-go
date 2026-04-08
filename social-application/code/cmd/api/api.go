@@ -47,7 +47,7 @@ func (app *application) mount() http.Handler {
 	// that the request has timed out and further processing should be stopped.
 	r.Use(middleware.Timeout(60 * time.Second))
 
-	// r.Get("/health", app.healthCheckHandler)
+	// All of the V1 routes
 	r.Route("/v1", func(r chi.Router) {
 		r.Get("/health", app.healthCheckHandler)
 
@@ -68,6 +68,10 @@ func (app *application) mount() http.Handler {
 				r.Get("/", app.GetUserHandler)
 				r.Put("/follow", app.FollowUserHandler)     // Follow
 				r.Put("/unfollow", app.UnfollowUserHandler) // Follow
+			})
+
+			r.Group(func(r chi.Router) {
+				r.Get("/feed", app.getUserFeedHandler)
 			})
 		})
 	})

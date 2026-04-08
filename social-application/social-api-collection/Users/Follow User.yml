@@ -5,7 +5,7 @@ info:
 
 http:
   method: PUT
-  url: http://localhost:8080/v1/users/83/follow
+  url: http://localhost:8080/v1/users/24/follow
   body:
     type: json
     data: |-
