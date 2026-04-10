@@ -168,7 +168,7 @@ func (s *PostStore) DeletePost(ctx context.Context, postID int64) error {
 	return nil
 }
 
-func (s *PostStore) GetUserFeed(ctx context.Context, userID int64) ([]PostForFeed, error) {
+func (s *PostStore) GetUserFeed(ctx context.Context, userID int64, fq PaginatedFeedQuery) ([]PostForFeed, error) {
 	query := `
 		SELECT 
 			p.id, 
@@ -185,17 +185,28 @@ func (s *PostStore) GetUserFeed(ctx context.Context, userID int64) ([]PostForFee
 		LEFT JOIN comments c ON c.post_id = p.id
 		LEFT JOIN users u ON p.user_id = u.id
 		JOIN followers f ON f.follower_id = p.user_id OR p.user_id = $1
-		WHERE f.user_id = $1 OR p.user_id = $1
+		WHERE 
+			(f.user_id = $1 OR p.user_id = $1)
+			AND ($4 = '' OR p.title ILIKE '%' || $4 || '%' OR p.content ILIKE '%' || $4 || '%')
+			AND (COALESCE(array_length($5::text[], 1), 0) = 0 OR p.tags @> $5::varchar[])
 		GROUP BY p.id, u.username, u.email
-		ORDER BY p.created_at DESC
+		ORDER BY p.created_at ` + fq.Sort + `
+		LIMIT $2 OFFSET $3
 	`
 
 	ctx, cancel := context.WithTimeout(ctx, QueryTimeoutDuration)
 	defer cancel()
 
-	rows, err := s.db.QueryContext(ctx, query, userID)
+	rows, err := s.db.QueryContext(
+		ctx,
+		query,
+		userID,
+		fq.Limit,
+		fq.Offset,
+		fq.Search,
+		pq.Array(fq.Tags))
 	if err != nil {
-
+		return nil, err
 	}
 
 	defer rows.Close()
@@ -204,6 +215,7 @@ func (s *PostStore) GetUserFeed(ctx context.Context, userID int64) ([]PostForFee
 	// Loop until rows.Next() ends
 	for rows.Next() {
 		var post PostForFeed
+
 		err := rows.Scan(
 			&post.ID,
 			&post.UserID,
