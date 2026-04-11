@@ -11,11 +11,17 @@ import (
 
 const version = "0.0.1" // Pre-release
 
+// @security					ApiKeyAuth
+// @securityDefinitions.apiKey	ApiKeyAuth
+// @in							header
+// @name						Authorization
+// @description				Enter your bearer token in the format "Bearer <token>"
 func main() {
 	// Having "postgres://user:adminpassword@localhost/social?sslmode=disable" - as the default
 	// We are going to run postgres with docker for local, and for that we don't need DB_ADDR env variable
 	cfg := config{
-		addr: env.GetString("ADDR", ":8080"),
+		addr:   env.GetString("ADDR", ":8080"),
+		apiUrl: env.GetString("EXTERNAL_URL", "localhost:8080"),
 		db: dbConfig{
 			addr:         env.GetString("DB_ADDR", "postgres://admin:adminpassword@localhost/social?sslmode=disable"),
 			maxOpenConns: env.GetInt("DB_MAX_OPEN_CONNS", 30),

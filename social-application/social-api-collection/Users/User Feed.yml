@@ -5,7 +5,21 @@ info:
 
 http:
   method: GET
-  url: http://localhost:8080/v1/users/feed
+  url: http://localhost:8080/v1/users/feed?limit=10&sort=asc&tags=innovation
+  params:
+    - name: limit
+      value: "10"
+      type: query
+    - name: sort
+      value: asc
+      type: query
+    - name: search
+      value: morning
+      type: query
+      disabled: true
+    - name: tags
+      value: innovation
+      type: query
   auth: inherit
 
 settings:

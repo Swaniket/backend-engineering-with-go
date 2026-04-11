@@ -1,0 +1,12 @@
+info:
+  contact: {}
+paths: {}
+security:
+- ApiKeyAuth: []
+securityDefinitions:
+  ApiKeyAuth:
+    description: Enter your bearer token in the format "Bearer <token>"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
