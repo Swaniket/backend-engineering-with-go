@@ -1,12 +1,12 @@
 package main
 
 import (
-	"log"
 	"os"
 
 	"github.com/Swaniket/social/internal/db"
 	"github.com/Swaniket/social/internal/env"
 	"github.com/Swaniket/social/internal/store"
+	"go.uber.org/zap"
 )
 
 const version = "0.0.1" // Pre-release
@@ -31,24 +31,26 @@ func main() {
 		env: env.GetString("ENV", "development"),
 	}
 
+	// Logger Setup
+	logger := zap.Must(zap.NewProduction()).Sugar()
+	defer logger.Sync()
+
+	// Database
 	db, err := db.New(cfg.db.addr, cfg.db.maxOpenConns, cfg.db.maxIdleConns, cfg.db.maxIdleTime)
 	if err != nil {
-		log.Panic(err) // Don't want to bootup the server if the db connection fails.
+		logger.Fatal(err) // Don't want to bootup the server if the db connection fails.
 	}
-
 	defer db.Close()
-	log.Printf("Database connection successful!")
-
+	logger.Info("Database connection successful!")
 	store := store.NewPostgresStorage(db)
 
 	app := &application{
 		config: cfg,
 		store:  store,
+		logger: logger,
 	}
 
 	os.LookupEnv("PATH")
-
 	mux := app.mount()
-
-	log.Fatal(app.run(mux))
+	logger.Fatal(app.run(mux))
 }
