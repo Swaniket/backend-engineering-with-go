@@ -24,9 +24,9 @@ type Storage struct {
 		GetUserFeed(context.Context, int64, PaginatedFeedQuery) ([]PostForFeed, error)
 	}
 	Users interface {
-		Create(context.Context, *User) error
+		Create(context.Context, *sql.Tx, *User) error
 		GetByID(context.Context, int64) (*User, error)
-		CreateAndInvite(context.Context, *User, string) error
+		CreateAndInvite(context.Context, *User, string, time.Duration) error
 	}
 	Comments interface {
 		Create(context.Context, *Comment) error
@@ -47,4 +47,22 @@ func NewPostgresStorage(db *sql.DB) Storage {
 		Comments:  &CommentsStore{db},
 		Followers: &FollowerStore{db},
 	}
+}
+
+// With Transaction
+func withTx(db *sql.DB, ctx context.Context, fn func(*sql.Tx) error) error {
+	tx, err := db.BeginTx(ctx, nil)
+
+	if err != nil {
+		return nil
+	}
+
+	// Calling the callback function with the transaction
+	if err := fn(tx); err != nil {
+		_ = tx.Rollback() // Rollback if the transaction fails
+		return err
+	}
+
+	// Commiting to the transaction
+	return tx.Commit()
 }

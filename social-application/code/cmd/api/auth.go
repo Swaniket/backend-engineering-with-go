@@ -1,9 +1,12 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"net/http"
 
 	"github.com/Swaniket/social/internal/store"
+	"github.com/google/uuid"
 )
 
 type RegisterUserPayload struct {
@@ -38,9 +41,24 @@ func (app *application) RegisterUserHandler(w http.ResponseWriter, r *http.Reque
 	// Store the user
 	ctx := r.Context()
 
-	if err := app.store.Users.CreateAndInvite(ctx, user, "Token-123"); err != nil {
-		app.InternalServerError(w, r, err)
-		return
+	plainToken := uuid.New().String()
+
+	// Encrypt the token and store it into the DB -> sent users the plain token
+	hash := sha256.Sum256([]byte(plainToken))
+	hashToken := hex.EncodeToString(hash[:])
+
+	if err := app.store.Users.CreateAndInvite(ctx, user, hashToken, app.config.mail.exp); err != nil {
+		switch err {
+		case store.ErrDuplicateEmail:
+			app.BadRequestError(w, r, err)
+			return
+		case store.ErrDuplicateUsername:
+			app.BadRequestError(w, r, err)
+			return
+		default:
+			app.InternalServerError(w, r, err)
+			return
+		}
 	}
 
 	// Send the email - also rollback the user storing if it fails using SQL transactions
