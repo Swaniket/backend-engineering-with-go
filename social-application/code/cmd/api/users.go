@@ -83,6 +83,26 @@ func (app *application) UnfollowUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
+	token := chi.URLParam(r, "token")
+
+	err := app.store.Users.ActivateUser(r.Context(), token)
+	if err != nil {
+		switch err {
+		case store.ErrNotFound:
+			app.BadRequestError(w, r, err)
+			return
+		default:
+			app.InternalServerError(w, r, err)
+			return
+		}
+	}
+
+	if err := app.jsonResponse(w, http.StatusNoContent, ""); err != nil {
+		app.InternalServerError(w, r, err)
+	}
+}
+
 // Get the userId -> Fetch the user -> put it into the context
 func (app *application) userContextMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

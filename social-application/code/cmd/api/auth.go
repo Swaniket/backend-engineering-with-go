@@ -15,9 +15,14 @@ type RegisterUserPayload struct {
 	Password string `json:"password" validate:"required,min=3,max=72"`
 }
 
+type UserWithToken struct {
+	*store.User
+	Token string `json:"token"`
+}
+
 func (app *application) RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 	var payload RegisterUserPayload
-	if err := ReadJSON(w, r, payload); err != nil {
+	if err := ReadJSON(w, r, &payload); err != nil {
 		app.BadRequestError(w, r, err)
 		return
 	}
@@ -61,10 +66,15 @@ func (app *application) RegisterUserHandler(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	// Send the email - also rollback the user storing if it fails using SQL transactions
+	userWithToken := UserWithToken{
+		User:  user,
+		Token: plainToken,
+	}
+
+	//@TODO: Send the email - also rollback the user storing if it fails using SQL transactions
 
 	// Send success after account is created
-	if err := app.jsonResponse(w, http.StatusCreated, nil); err != nil {
+	if err := app.jsonResponse(w, http.StatusCreated, userWithToken); err != nil {
 		app.InternalServerError(w, r, err)
 		return
 	}

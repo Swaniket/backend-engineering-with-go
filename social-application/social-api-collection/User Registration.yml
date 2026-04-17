@@ -1,0 +1,23 @@
+info:
+  name: User Registration
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: http://localhost:8080/v1/authentication/user
+  body:
+    type: json
+    data: |-
+      {
+        "username": "Swaniket",
+        "email": "swaniket@email.com",
+        "password": "123456"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
