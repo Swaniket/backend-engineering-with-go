@@ -86,3 +86,7 @@ We are using -> [`golang-migrate`](https://github.com/golang-migrate/migrate?tab
 - It allows us to store commands (as they can be complicated sometimes) and run them using simple keywords.
 - The file should be called -> `Makefile`
 
+## SAGA Pattern
+
+The Saga pattern is a design pattern for managing data consistency across multiple microservices in distributed applications, ensuring **"all-or-nothing"** outcomes without long-lived locking. It breaks distributed transactions into a sequence of local ACID transactions, using compensations to reverse steps if a failure occurs.
+

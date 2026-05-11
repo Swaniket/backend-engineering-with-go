@@ -5,7 +5,7 @@ info:
 
 http:
   method: PUT
-  url: http://localhost:8080/v1/users/activate/1
+  url: http://localhost:8080/v1/users/activate/1f022d48-d0b7-4c4d-95ee-3d11a2868fc3
   auth: inherit
 
 settings:

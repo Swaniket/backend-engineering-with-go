@@ -1,0 +1,20 @@
+{{define "subject"}}Finish Registration with Social{{end}}
+
+{{define "Body"}}
+<!doctype html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width"/>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    </head>
+    <body>
+        <p>Hi {{.Username}}</p>
+        <p>Thanks for signining up with Social, we are excited to have you onboard</p>
+        <p>Before you can start using, please confirm your email by clicking on the below link:</p>
+        <p><a href="{{.ActivationURL}}">{{.ActivationURL}}</a></p>
+
+        <p>Thanks,</p>
+        <p>Social Team</p>
+    </body>
+</html>
+{{end}}
